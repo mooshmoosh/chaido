@@ -61,6 +61,14 @@ class ChaidoAdding(unittest.TestCase):
         self.assertEqual(self.app.getTodo(1), "go to the shops")
         self.assertEqual(self.app.visibleTodoCount, 2)
 
+    def testAddMultipleTodoWithASpecifiedWithIndex(self):
+        chaido.addNewTodo(self.app, ["write a book"])
+        chaido.addNewTodo(self.app, ["buy more milk"])
+        chaido.addNewTodo(self.app, ["go to the shops", "-b", "1", "2"])
+        self.assertEqual(self.app.totalTodoCount, 3)
+        self.assertEqual(self.app.getTodo(0), "go to the shops")
+        self.assertEqual(self.app.visibleTodoCount, 1)
+
 class ChaidoRemoving(unittest.TestCase):
     def setUp(self):
         self.app = MockChaiDoApp()

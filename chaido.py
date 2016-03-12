@@ -107,11 +107,15 @@ class ChaidoApp:
     def addDependantTasks(self, dependantTask, depended):
         dependantTaskObject = self.todoItems.pop(dependantTask)
         dependedTaskObjects = []
+        taskIndexesToPop = []
         for task in depended:
             taskIndex = self.getTaskIndexByIdentifier(task)
             dependedTaskObjects.append(self.todoItems[taskIndex])
-            self.todoItems.pop(taskIndex)
+            taskIndexesToPop.append(taskIndex)
         dependantTaskObject["children"] = dependedTaskObjects
+        taskIndexesToPop.sort(reverse=True)
+        for idx in taskIndexesToPop:
+            self.todoItems.pop(idx)
         self.todoItems.append(dependantTaskObject)
 
     def load(self, filename):
