@@ -13,10 +13,7 @@ def addNewTodo(app, arguments):
         return "No todo item was provided"
     newTodoIndex = app.addTodo(arguments[0])
     if len(arguments) >= 3 and arguments[1] == '-b':
-        try:
-            app.addDependantTasks(newTodoIndex, arguments[2:])
-        except ChaidoError:
-            return "Error: " + ChaidoError.message
+        app.addDependantTasks(newTodoIndex, arguments[2:])
     return "OK"
 
 def removeTodo(app, arguments):
@@ -79,6 +76,8 @@ class ChaidoApp:
 
     def removeTodo(self, todoName):
         taskIndex = self.getTaskIndexByIdentifier(todoName)
+        if taskIndex < 0 or taskIndex >= len(self.todoItems):
+            raise ChaidoError("No such task: " + todoName)
         taskToRemove = self.todoItems.pop(taskIndex)
         self.todoItems += taskToRemove["children"]
         self.totalTodoCount -= 1
@@ -141,6 +140,9 @@ if __name__ == "__main__":
         print(listToDos(app, []))
     else:
         cleanedArguments = cleanUpArguments(sys.argv[2:])
-        print(commands[sys.argv[1]](app, cleanedArguments))
+        try:
+            print(commands[sys.argv[1]](app, cleanedArguments))
+        except ChaidoError as error:
+            print("Error: " + error.message)
     app.save(".chaido")
 

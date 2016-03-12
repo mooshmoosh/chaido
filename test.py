@@ -84,6 +84,14 @@ class ChaidoRemoving(unittest.TestCase):
         self.assertEqual(self.app.totalTodoCount, 1)
         self.assertEqual(self.app.getTodo(0), "buy more milk")
 
+    def testRemovingTasksThatDontExist(self):
+        chaido.removeTodo(self.app, ["1"])
+        chaido.removeTodo(self.app, ["1"])
+        with self.assertRaises(chaido.ChaidoError):
+            chaido.removeTodo(self.app, ["1"])
+
+        self.assertEqual(self.app.totalTodoCount, 0)
+
 class ChaidoListTodos(unittest.TestCase):
     def setUp(self):
         self.app = MockChaiDoApp()
