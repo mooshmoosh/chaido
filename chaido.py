@@ -81,7 +81,7 @@ class ChaidoApp:
         taskIndex = self.getTaskIndexByIdentifier(todoName)
         taskToRemove = self.todoItems.pop(taskIndex)
         self.todoItems += taskToRemove["children"]
-        self.totalTodoCount -= len(taskToRemove["children"])
+        self.totalTodoCount -= 1
 
     def getTaskIndexByIdentifier(self, todoIdentifier):
         if isInt(todoIdentifier):

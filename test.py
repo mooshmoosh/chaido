@@ -76,8 +76,11 @@ class ChaidoRemoving(unittest.TestCase):
         chaido.addNewTodo(self.app, ["go to the shops", "-b", "buy more milk"])
 
     def testRemovingATodo(self):
+        self.assertEqual(self.app.visibleTodoCount, 1)
+        self.assertEqual(self.app.totalTodoCount, 2)
         self.assertEqual(self.app.getTodo(0), "go to the shops")
         chaido.removeTodo(self.app, ["1"])
+        self.assertEqual(self.app.visibleTodoCount, 1)
         self.assertEqual(self.app.totalTodoCount, 1)
         self.assertEqual(self.app.getTodo(0), "buy more milk")
 
