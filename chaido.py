@@ -10,7 +10,7 @@ class ChaidoError(BaseException):
 
 def addNewTodo(app, arguments):
     if len(arguments) < 1:
-        return "No todo item was provided"
+        raise ChaidoError("No todo item was provided")
     newTodoIndex = app.addTodo(arguments[0])
     if len(arguments) >= 3 and arguments[1] == '-b':
         app.addDependantTasks(newTodoIndex, arguments[2:])
@@ -32,11 +32,21 @@ def listToDos(app, arguments):
         counter += 1
     return "\n".join(result)
 
+def setTaskAsDependant(app, arguments):
+    dependant = arguments[0]
+    if len(arguments) < 3:
+        raise ChaidoError("You must specify task(s) that depend on " + dependant)
+    if arguments[1] != "-b":
+        raise ChaidoError("Unknown option " + arguments[1])
+    app.setTaskAsDependant(dependant, arguments[2:])
+    return "OK"
+
 commands = {
     "new" : addNewTodo,
     "done" : removeTodo,
     "help" : displayHelp,
     "list" : listToDos,
+    "must" : setTaskAsDependant
 }
 
 def cleanUpArguments(argumentList):
@@ -81,6 +91,17 @@ class ChaidoApp:
         taskToRemove = self.todoItems.pop(taskIndex)
         self.todoItems += taskToRemove["children"]
         self.totalTodoCount -= 1
+
+    def setTaskAsDependant(self, dependant, depended):
+        dependantTaskIndex = self.getTaskIndexByIdentifier(dependant)
+        tasksToRemove = []
+        for task in depended:
+            taskIndex = self.getTaskIndexByIdentifier(task)
+            tasksToRemove.append(taskIndex)
+            self.todoItems[dependantTaskIndex]['children'].append(self.todoItems[taskIndex])
+        tasksToRemove.sort(reverse=True)
+        for task in tasksToRemove:
+            self.todoItems.pop(task)
 
     def getTaskIndexByIdentifier(self, todoIdentifier):
         if isInt(todoIdentifier):

@@ -104,5 +104,28 @@ class ChaidoListTodos(unittest.TestCase):
         self.assertEqual(chaido.listToDos(self.app, []), expectedResult)
         chaido.addNewTodo(self.app, ["go to the shops", "-b", "buy more milk"])
 
+class ChaidoSetExistingTaskAsDependant(unittest.TestCase):
+    def setUp(self):
+        self.app = MockChaiDoApp()
+        chaido.addNewTodo(self.app, ["buy pens"])
+        chaido.addNewTodo(self.app, ["buy more milk"])
+        chaido.addNewTodo(self.app, ["write a book"])
+        chaido.addNewTodo(self.app, ["go to the shops"])
+
+    def testSetTaskAsDependant(self):
+        chaido.setTaskAsDependant(self.app, ["3", "-b", "2"])
+        self.assertEqual(self.app.visibleTodoCount, 3)
+        self.assertEqual(self.app.totalTodoCount, 4)
+        self.assertEqual(self.app.getTodo(0), "buy pens")
+        self.assertEqual(self.app.getTodo(1), "write a book")
+        self.assertEqual(self.app.getTodo(2), "go to the shops")
+
+    def testSetTaskAsDependantOnMultipleTasks(self):
+        chaido.setTaskAsDependant(self.app, ["3", "-b", "1", "2"])
+        self.assertEqual(self.app.visibleTodoCount, 2)
+        self.assertEqual(self.app.totalTodoCount, 4)
+        self.assertEqual(self.app.getTodo(0), "write a book")
+        self.assertEqual(self.app.getTodo(1), "go to the shops")
+
 if __name__ == "__main__":
     unittest.main()
