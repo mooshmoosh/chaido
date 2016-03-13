@@ -17,6 +17,7 @@ def addNewTodo(app, arguments):
     return "OK"
 
 def removeTodo(app, arguments):
+    arguments.sort(reverse=True)
     while len(arguments) > 0:
         app.removeTodo(arguments.pop(0))
     return "OK"

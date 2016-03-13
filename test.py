@@ -89,8 +89,25 @@ class ChaidoRemoving(unittest.TestCase):
         chaido.removeTodo(self.app, ["1"])
         with self.assertRaises(chaido.ChaidoError):
             chaido.removeTodo(self.app, ["1"])
-
         self.assertEqual(self.app.totalTodoCount, 0)
+
+    def testRemovingMultipleTasksInNonDecreasingOrder(self):
+        chaido.addNewTodo(self.app, ["buy more cheese"])
+        chaido.addNewTodo(self.app, ["buy more eggs"])
+        chaido.addNewTodo(self.app, ["buy more flour"])
+        self.assertEqual(self.app.visibleTodoCount, 4)
+        self.assertEqual(self.app.totalTodoCount, 5)
+        self.assertEqual(self.app.getTodo(0), "go to the shops")
+        self.assertEqual(self.app.getTodo(1), "buy more cheese")
+        self.assertEqual(self.app.getTodo(2), "buy more eggs")
+        self.assertEqual(self.app.getTodo(3), "buy more flour")
+
+        chaido.removeTodo(self.app, ["1", "2", "3"])
+        self.assertEqual(self.app.visibleTodoCount, 2)
+        self.assertEqual(self.app.totalTodoCount, 2)
+        self.assertEqual(self.app.getTodo(0), "buy more flour")
+        self.assertEqual(self.app.getTodo(1), "buy more milk")
+
 
 class ChaidoListTodos(unittest.TestCase):
     def setUp(self):
