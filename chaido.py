@@ -12,7 +12,7 @@ def addNewTodo(app, arguments):
     if len(arguments) < 1:
         raise ChaidoError("No todo item was provided")
     newTodoIndex = app.addTodo(arguments[0])
-    if len(arguments) >= 3 and arguments[1] == '-b':
+    if len(arguments) >= 3 and arguments[1] == 'before':
         app.addDependantTasks(newTodoIndex, arguments[2:])
     return "OK"
 
@@ -37,7 +37,7 @@ def setTaskAsDependant(app, arguments):
     dependant = arguments[0]
     if len(arguments) < 3:
         raise ChaidoError("You must specify task(s) that depend on " + dependant)
-    if arguments[1] != "-b":
+    if arguments[1] != "before":
         raise ChaidoError("Unknown option " + arguments[1])
     app.setTaskAsDependant(dependant, arguments[2:])
     return "OK"
