@@ -13,7 +13,7 @@ def addNewTodo(app, arguments):
         raise ChaidoError("No todo item was provided")
     newTodoIndex = app.addTodo(arguments[0])
     if len(arguments) >= 3 and arguments[1] == 'before':
-        app.addDependantTasks(newTodoIndex, arguments[2:])
+        app.setTaskAsDependant(newTodoIndex, arguments[2:])
     return "OK"
 
 def removeTodo(app, arguments):
@@ -27,19 +27,27 @@ def displayHelp(app, arguments):
 
 def listToDos(app, arguments):
     result = []
-    counter = 1
-    for todo in app.todoItems:
-        result.append(str(counter) + ": " + todo['name'])
-        counter += 1
+    for counter, todo in enumerate(app.visibleTodoItems):
+        result.append(str(counter + 1) + ": " + app.todoItems[todo]['name'])
     return "\n".join(result)
 
 def setTaskAsDependant(app, arguments):
-    dependant = arguments[0]
-    if len(arguments) < 3:
+    listingBeforeTasks = True
+    beforeTasks = []
+    afterTasks = []
+    if "before" not in arguments:
+        raise ChaidoError("Syntax is {tasks to do first} before {tasks to do later}")
+    for argument in arguments:
+        if argument == 'before':
+            listingBeforeTasks = False
+        elif listingBeforeTasks:
+            beforeTasks.append(argument)
+        else:
+            afterTasks.append(argument)
+    if len(afterTasks) == 0:
         raise ChaidoError("You must specify task(s) that depend on " + dependant)
-    if arguments[1] != "before":
-        raise ChaidoError("Unknown option " + arguments[1])
-    app.setTaskAsDependant(dependant, arguments[2:])
+    for beforeTask in beforeTasks:
+        app.setTaskAsDependant(beforeTask, afterTasks)
     return "OK"
 
 commands = {
@@ -76,82 +84,95 @@ def isInt(s):
 
 class ChaidoApp:
     def __init__(self):
-        self.todoItems = []
-        self.totalTodoCount = 0
+        self.todoItems = {}
+        self.visibleTodoItems = []
+        self.visibleDirty = False
+        self.nextTodoIndex = 0
+
+    @property
+    def totalTodoCount(self):
+        if self.visibleDirty:
+            self.recalculateVisible()
+        return len(self.todoItems)
+
+    @property
+    def visibleTodoCount(self):
+        if self.visibleDirty:
+            self.recalculateVisible()
+        return len(self.visibleTodoItems)
 
     def addTodo(self, todoName):
-        newTodoIndex = len(self.todoItems)
-        self.todoItems.append({"name" : todoName, "children" : []})
-        self.totalTodoCount += 1
-        return newTodoIndex
+        self.todoItems[self.nextTodoIndex] = {"name" : todoName, "children" : []}
+        self.visibleTodoItems.append(self.nextTodoIndex)
+        self.nextTodoIndex += 1
+        return len(self.visibleTodoItems)
 
     def removeTodo(self, todoName):
+        self.visibleDirty = True
         taskIndex = self.getTaskIndexByIdentifier(todoName)
-        if taskIndex < 0 or taskIndex >= len(self.todoItems):
+        if taskIndex not in self.todoItems:
             raise ChaidoError("No such task: " + todoName)
-        taskToRemove = self.todoItems.pop(taskIndex)
-        self.todoItems += taskToRemove["children"]
-        self.totalTodoCount -= 1
+        del self.todoItems[taskIndex]
 
     def setTaskAsDependant(self, dependant, depended):
+        self.visibleDirty = True
         dependantTaskIndex = self.getTaskIndexByIdentifier(dependant)
-        tasksToRemove = []
         for task in depended:
             taskIndex = self.getTaskIndexByIdentifier(task)
-            tasksToRemove.append(taskIndex)
-            self.todoItems[dependantTaskIndex]['children'].append(self.todoItems[taskIndex])
-        tasksToRemove.sort(reverse=True)
-        for task in tasksToRemove:
-            self.todoItems.pop(task)
+            self.todoItems[taskIndex]['children'].append(dependantTaskIndex)
 
     def getTaskIndexByIdentifier(self, todoIdentifier):
         if isInt(todoIdentifier):
-            return int(todoIdentifier) - 1
+            return self.visibleTodoItems[int(todoIdentifier) - 1]
         else:
             return self.getTaskIndexByName(todoIdentifier)
 
     def getTaskIndexByName(self, task):
-        for index, todo in enumerate(self.todoItems):
+        for index, todo in self.todoItems.items():
             if todo.get("name") == task:
                 return index
         raise ChaidoError("No visible task named " + task)
 
-    @property
-    def visibleTodoCount(self):
-        return len(self.todoItems)
+    def recalculateVisible(self):
+        self.visibleTodoItems = sorted(self.todoItems.keys())
+        for index, todoItem in self.todoItems.items():
+            newChildrenList = []
+            for child in todoItem['children']:
+                if child in self.todoItems:
+                    newChildrenList.append(child)
+            todoItem['children'] = newChildrenList
+            if len(newChildrenList) > 0:
+                self.visibleTodoItems.remove(index)
+        self.visibleDirty = False
 
     def getTodo(self, index):
-        if index > self.visibleTodoCount:
+        if self.visibleDirty:
+            self.recalculateVisible()
+        if index > len(self.visibleTodoItems):
             raise ChaidoError("There are fewer than " + str(index) + " visible todos")
-        return self.todoItems[index].get("name")
+        return self.todoItems[self.visibleTodoItems[index]].get("name")
 
     def addDependantTasks(self, dependantTask, depended):
-        dependantTaskObject = self.todoItems.pop(dependantTask)
-        dependedTaskObjects = []
-        taskIndexesToPop = []
-        for task in depended:
-            taskIndex = self.getTaskIndexByIdentifier(task)
-            dependedTaskObjects.append(self.todoItems[taskIndex])
-            taskIndexesToPop.append(taskIndex)
-        dependantTaskObject["children"] = dependedTaskObjects
-        taskIndexesToPop.sort(reverse=True)
-        for idx in taskIndexesToPop:
-            self.todoItems.pop(idx)
-        self.todoItems.append(dependantTaskObject)
+        newIndex = self.addTodo(dependantTask)
+        self.todoItems[newIndex]['children'].append(
+            [self.getTaskIndexByIdentifier(task) for task in depended]
+        )
 
     def load(self, filename):
         if os.path.exists(filename):
             with open(filename, "r") as f:
                 data = json.loads(f.read())
-            if 'items' not in data or 'itemcount' not in data:
-                return
-            self.todoItems = data['items']
-            self.totalTodoCount = data['itemcount']
+            self.todoItems = data.get('todo_items', {})
+            self.visibleTodoItems = data.get('visible_todo_items', [])
+            self.nextTodoIndex = data.get('next_todo_index', 0)
+            self.visibleDirty = data['visible_dirty']
 
     def save(self, filename):
         data = {}
-        data['items'] = self.todoItems
-        data['itemcount'] = self.totalTodoCount
+        data['visible_dirty'] = self.visibleDirty
+        data['todo_items'] = self.todoItems
+        data['visible_todo_items'] = self.visibleTodoItems
+        data['next_todo_index'] = self.nextTodoIndex
         with open(filename, "w") as f:
             f.write(json.dumps(data))
 

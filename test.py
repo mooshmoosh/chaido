@@ -66,8 +66,8 @@ class ChaidoAdding(unittest.TestCase):
         chaido.addNewTodo(self.app, ["buy more milk"])
         chaido.addNewTodo(self.app, ["go to the shops", "before", "1", "2"])
         self.assertEqual(self.app.totalTodoCount, 3)
-        self.assertEqual(self.app.getTodo(0), "go to the shops")
         self.assertEqual(self.app.visibleTodoCount, 1)
+        self.assertEqual(self.app.getTodo(0), "go to the shops")
 
 class ChaidoRemoving(unittest.TestCase):
     def setUp(self):
@@ -80,13 +80,13 @@ class ChaidoRemoving(unittest.TestCase):
         self.assertEqual(self.app.totalTodoCount, 2)
         self.assertEqual(self.app.getTodo(0), "go to the shops")
         chaido.removeTodo(self.app, ["1"])
-        self.assertEqual(self.app.visibleTodoCount, 1)
         self.assertEqual(self.app.totalTodoCount, 1)
+        self.assertEqual(self.app.visibleTodoCount, 1)
         self.assertEqual(self.app.getTodo(0), "buy more milk")
 
     def testRemovingTasksThatDontExist(self):
         chaido.removeTodo(self.app, ["1"])
-        chaido.removeTodo(self.app, ["1"])
+        chaido.removeTodo(self.app, ["2"])
         with self.assertRaises(chaido.ChaidoError):
             chaido.removeTodo(self.app, ["1"])
         self.assertEqual(self.app.totalTodoCount, 0)
@@ -105,8 +105,8 @@ class ChaidoRemoving(unittest.TestCase):
         chaido.removeTodo(self.app, ["1", "2", "3"])
         self.assertEqual(self.app.visibleTodoCount, 2)
         self.assertEqual(self.app.totalTodoCount, 2)
-        self.assertEqual(self.app.getTodo(0), "buy more flour")
-        self.assertEqual(self.app.getTodo(1), "buy more milk")
+        self.assertEqual(self.app.getTodo(0), "buy more milk")
+        self.assertEqual(self.app.getTodo(1), "buy more flour")
 
 
 class ChaidoListTodos(unittest.TestCase):
@@ -143,6 +143,14 @@ class ChaidoSetExistingTaskAsDependant(unittest.TestCase):
         self.assertEqual(self.app.totalTodoCount, 4)
         self.assertEqual(self.app.getTodo(0), "write a book")
         self.assertEqual(self.app.getTodo(1), "go to the shops")
+
+    def testSetMulipleTasksAsDependantOnMultipleTasks(self):
+        chaido.setTaskAsDependant(self.app, ["3", "4", "before", "1", "2"])
+        self.assertEqual(self.app.visibleTodoCount, 2)
+        self.assertEqual(self.app.totalTodoCount, 4)
+        self.assertEqual(self.app.getTodo(0), "write a book")
+        self.assertEqual(self.app.getTodo(1), "go to the shops")
+
 
 if __name__ == "__main__":
     unittest.main()
