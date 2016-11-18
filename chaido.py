@@ -27,7 +27,7 @@ def displayHelp(app, arguments):
 
 def listToDos(app, arguments):
     result = []
-    for counter, todo in enumerate(app.visibleTodoItems):
+    for counter, todo in enumerate(app.getVisibleTodos()):
         result.append(str(counter + 1) + ": " + app.todoItems[todo]['name'])
     return "\n".join(result)
 
@@ -100,9 +100,14 @@ class ChaidoApp:
             self.recalculateVisible()
         return len(self.visibleTodoItems)
 
+    def getVisibleTodos(self):
+        if self.visibleDirty:
+            self.recalculateVisible()
+        return self.visibleTodoItems
+
     def addTodo(self, todoName):
-        self.todoItems[self.nextTodoIndex] = {"name" : todoName, "children" : []}
-        self.visibleTodoItems.append(self.nextTodoIndex)
+        self.todoItems[str(self.nextTodoIndex)] = {"name" : todoName, "children" : []}
+        self.visibleTodoItems.append(str(self.nextTodoIndex))
         self.nextTodoIndex += 1
         return len(self.visibleTodoItems)
 
