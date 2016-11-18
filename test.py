@@ -12,19 +12,14 @@ class MockChaiDoApp(chaido.ChaidoApp):
 
 class CleanArgumentsTest(unittest.TestCase):
     def testCleanArgumentsToAddTodo(self):
-        arguments = ["buy", "more", "milk", "-d", "5"]
+        arguments = ["buy", "more", "milk", "before", "5"]
         cleanedArguments = chaido.cleanUpArguments(arguments)
-        self.assertEqual(cleanedArguments, ["buy more milk", "-d", "5"])
+        self.assertEqual(cleanedArguments, ["buy more milk", "before", "5"])
 
     def testCleanArgumentsWithATodoAndMultipleOptions(self):
-        arguments = ["buy", "more", "milk", "-d", "5", "3", "9"]
+        arguments = ["buy", "more", "milk", "before", "5", "3", "9"]
         cleanedArguments = chaido.cleanUpArguments(arguments)
-        self.assertEqual(cleanedArguments, ["buy more milk", "-d", "5", "3", "9"])
-
-    def testCleanArgumentsOnlyArguments(self):
-        arguments = ["-buy", "-more", "-milk", "-d", "-5"]
-        cleanedArguments = chaido.cleanUpArguments(arguments)
-        self.assertEqual(cleanedArguments, arguments)
+        self.assertEqual(cleanedArguments, ["buy more milk", "before", "5", "3", "9"])
 
     def testCleanArgumentsNoOptions(self):
         arguments = ["buy", "more", "milk", "ok?"]

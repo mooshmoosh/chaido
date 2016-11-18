@@ -62,7 +62,7 @@ def cleanUpArguments(argumentList):
     argumentsToJoin = []
     result = []
     for (index, arg) in enumerate(argumentList):
-        if arg.startswith("-"):
+        if arg == 'before':
             if len(argumentsToJoin) > 0:
                 result.append(" ".join(argumentsToJoin))
                 argumentsToJoin = []
@@ -72,7 +72,6 @@ def cleanUpArguments(argumentList):
             argumentsToJoin.append(arg)
     if len(argumentsToJoin) > 0:
         result.append(" ".join(argumentsToJoin))
-
     return result
 
 def isInt(s):
