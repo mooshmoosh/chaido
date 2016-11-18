@@ -186,7 +186,7 @@ if __name__ == "__main__":
     if len(sys.argv) <= 1:
         print(listToDos(app, []))
     else:
-        cleanedArguments = cleanUpArguments(sys.argv[2:])
+        cleanedArguments = sys.argv[2:]
         try:
             print(commands[sys.argv[1]](app, cleanedArguments))
         except ChaidoError as error:
