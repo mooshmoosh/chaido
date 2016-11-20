@@ -26,6 +26,8 @@ def displayHelp(app, arguments):
     pass
 
 def listToDos(app, arguments):
+    if app.visibleDirty:
+        app.recalculateVisible()
     result = []
     for counter, todo in enumerate(app.getVisibleTodos()):
         result.append(str(counter + 1) + ": " + app.todoItems[todo]['name'])
@@ -118,12 +120,12 @@ class ChaidoApp:
             raise ChaidoError("No such task: " + todoName)
         del self.todoItems[taskIndex]
 
-    def setTaskAsDependant(self, dependant, depended):
+    def setTaskAsDependant(self, beforeTask, afterTasks):
         self.visibleDirty = True
-        dependantTaskIndex = self.getTaskIndexByIdentifier(dependant)
-        for task in depended:
-            taskIndex = self.getTaskIndexByIdentifier(task)
-            self.todoItems[taskIndex]['children'].append(dependantTaskIndex)
+        beforeTaskIndex = self.getTaskIndexByIdentifier(beforeTask)
+        for afterTask in afterTasks:
+            afterTaskIndex = self.getTaskIndexByIdentifier(afterTask)
+            self.todoItems[afterTaskIndex]['children'].append(beforeTaskIndex)
 
     def getTaskIndexByIdentifier(self, todoIdentifier):
         if isInt(todoIdentifier):
