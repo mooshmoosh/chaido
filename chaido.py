@@ -138,7 +138,7 @@ class ChaidoApp:
         raise ChaidoError("No visible task named " + task)
 
     def recalculateVisible(self):
-        self.visibleTodoItems = sorted(self.todoItems.keys())
+        self.visibleTodoItems = sorted(self.todoItems.keys(), key=(lambda x : int(x)))
         for index, todoItem in self.todoItems.items():
             newChildrenList = []
             for child in todoItem['children']:
