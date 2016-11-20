@@ -36,15 +36,15 @@ $ chaido
 3: go to the shops
 ```
 
-Hide tasks until another is completed with `chaido must {later task} -b {task to do before}`
+Hide tasks until another is completed with `chaido must {later task} before {task to do before}`
 
 ```
-$ chaido must 3 -b 2
+$ chaido must 3 before 2
 OK
 $ chaido
 1: make a cake
 2: go to the shops
-$ chaido must 2 -b 1
+$ chaido must 2 before 1
 OK
 $ chaido
 1: go to the shops
