@@ -1,9 +1,8 @@
-#!/usr/bin/python3
-
 import sys
 import os
 import json
 import version
+import data_migration
 from Exceptions import *
 
 def addNewTodo(app, arguments):
@@ -50,11 +49,35 @@ def setTaskAsDependant(app, arguments):
         app.setTaskAsDependant(beforeTask, afterTasks)
     return "OK"
 
+def bumpTodo(app, arguments):
+    if 'before' in arguments:
+        listingBeforeTasks = True
+        beforeTasks = []
+        afterTasks = []
+        for argument in arguments:
+            if argument == 'before':
+                listingBeforeTasks = False
+            elif listingBeforeTasks:
+                beforeTasks.append(argument)
+            else:
+                afterTasks.append(argument)
+        max_priority = app.getTaskPriority(afterTasks[0])
+        for afterTask in afterTasks:
+            if max_priority > app.getTaskPriority(afterTask):
+                max_priority = app.getTaskPriority(afterTask)
+        for beforeTask in beforeTasks:
+            app.setTaskPriority(beforeTask, max_priority - 1)
+    else:
+        for argument in arguments:
+            app.bumpTodo(argument)
+    return "OK"
+
 commands = {
     "new" : addNewTodo,
     "done" : removeTodo,
     "help" : displayHelp,
     "list" : listToDos,
+    "bump" : bumpTodo,
     "must" : setTaskAsDependant
 }
 
@@ -111,6 +134,20 @@ class ChaidoApp:
         self.visibleTodoItems.append(str(self.nextTodoIndex))
         self.nextTodoIndex += 1
         return len(self.visibleTodoItems)
+
+    def bumpTodo(self, todoName):
+        self.visibleDirty = True
+        taskIndex = self.getTaskIndexByIdentifier(todoName)
+        self.todoItems[taskIndex]['priority'] -= 1
+
+    def getTaskPriority(self, todoName):
+        taskIndex = self.getTaskIndexByIdentifier(todoName)
+        return self.todoItems[taskIndex]['priority']
+
+    def setTaskPriority(self, todoName, newPriority):
+        self.visibleDirty = True
+        taskIndex = self.getTaskIndexByIdentifier(todoName)
+        self.todoItems[taskIndex]['priority'] = newPriority
 
     def removeTodo(self, todoName):
         self.visibleDirty = True
@@ -187,17 +224,4 @@ class ChaidoApp:
         data['__format_version__'] = version.__format_version__
         with open(filename, "w") as f:
             f.write(json.dumps(data))
-
-if __name__ == "__main__":
-    app = ChaidoApp()
-    app.load(".chaido")
-    if len(sys.argv) <= 1:
-        print(listToDos(app, []))
-    else:
-        cleanedArguments = sys.argv[2:]
-        try:
-            print(commands[sys.argv[1]](app, cleanedArguments))
-        except ChaidoError as error:
-            print("Error: " + error.message)
-    app.save(".chaido")
 
