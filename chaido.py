@@ -111,6 +111,16 @@ class ChaidoApp:
         self.visibleDirty = False
         self.nextTodoIndex = 0
         self.next_max_priority = -1
+        self.logMessages = []
+
+    def getLogMessages(self):
+        return self.logMessages
+
+    def log(self, command, message):
+        self.logMessages.append({
+            "command" : command,
+            "message" : message
+        })
 
     @property
     def totalTodoCount(self):
@@ -133,6 +143,7 @@ class ChaidoApp:
         self.todoItems[str(self.nextTodoIndex)] = {"name" : todoName, "children" : [], "priority" : self.nextTodoIndex}
         self.visibleTodoItems.append(str(self.nextTodoIndex))
         self.nextTodoIndex += 1
+        self.log("new", todoName)
         return len(self.visibleTodoItems)
 
     def bumpTodo(self, todoName):
@@ -154,6 +165,7 @@ class ChaidoApp:
         taskIndex = self.getTaskIndexByIdentifier(todoName)
         if taskIndex not in self.todoItems:
             raise ChaidoError("No such task: " + todoName)
+        self.log("done", self.todoItems[taskIndex]['name'])
         del self.todoItems[taskIndex]
 
     def setTaskAsDependant(self, beforeTask, afterTasks):
@@ -161,6 +173,7 @@ class ChaidoApp:
         beforeTaskIndex = self.getTaskIndexByIdentifier(beforeTask)
         for afterTask in afterTasks:
             afterTaskIndex = self.getTaskIndexByIdentifier(afterTask)
+            self.log('set_dependant', self.todoItems[afterTaskIndex]['name'] + "\t" + self.todoItems[beforeTaskIndex]['name'])
             self.todoItems[afterTaskIndex]['children'].append(beforeTaskIndex)
 
     def getTaskIndexByIdentifier(self, todoIdentifier):
