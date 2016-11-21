@@ -30,22 +30,35 @@ def listToDos(app, arguments):
     return "\n".join(result)
 
 def setTaskAsDependant(app, arguments):
-    listingBeforeTasks = True
-    beforeTasks = []
-    afterTasks = []
-    if "before" not in arguments:
-        raise ChaidoError("Syntax is {tasks to do first} before {tasks to do later}")
-    for argument in arguments:
-        if argument == 'before':
-            listingBeforeTasks = False
-        elif listingBeforeTasks:
-            beforeTasks.append(argument)
-        else:
-            afterTasks.append(argument)
-    if len(afterTasks) == 0:
-        raise ChaidoError("You must specify task(s) that depend on " + dependant)
-    for beforeTask in beforeTasks:
-        app.setTaskAsDependant(beforeTask, afterTasks)
+    if "then" in arguments:
+        taskLists = [[]]
+        for argument in arguments:
+            if argument == 'then':
+                taskLists.append([])
+            else:
+                taskLists[-1].append(argument)
+        if len(taskLists) < 2:
+            raise ChaidoError("Syntax is {tasks to do first} then {tasks to do later} ... then ... etc")
+        for taskListNumber, taskList in enumerate(taskLists[:-1]):
+            for beforeTask in taskList:
+                app.setTaskAsDependant(beforeTask, taskLists[taskListNumber + 1])
+    else:
+        listingBeforeTasks = True
+        beforeTasks = []
+        afterTasks = []
+        if "before" not in arguments:
+            raise ChaidoError("Syntax is {tasks to do first} before {tasks to do later}")
+        for argument in arguments:
+            if argument == 'before':
+                listingBeforeTasks = False
+            elif listingBeforeTasks:
+                beforeTasks.append(argument)
+            else:
+                afterTasks.append(argument)
+        if len(afterTasks) == 0:
+            raise ChaidoError("You must specify task(s) that depend on " + dependant)
+        for beforeTask in beforeTasks:
+            app.setTaskAsDependant(beforeTask, afterTasks)
     return "OK"
 
 def bumpTodo(app, arguments):
