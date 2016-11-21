@@ -3,10 +3,8 @@
 import sys
 import os
 import json
-
-class ChaidoError(BaseException):
-    def __init__(self, message):
-        self.message = message
+import version
+from Exceptions import *
 
 def addNewTodo(app, arguments):
     if len(arguments) < 1:
@@ -168,6 +166,10 @@ class ChaidoApp:
         if os.path.exists(filename):
             with open(filename, "r") as f:
                 data = json.loads(f.read())
+            if '__format_version__' not in data:
+                data['__format_version__'] = 0
+            if data['__format_version__'] <= version.__format_version__:
+                data = data_migration.migrate_old_data(data)
             self.todoItems = data.get('todo_items', {})
             self.visibleTodoItems = data.get('visible_todo_items', [])
             self.nextTodoIndex = data.get('next_todo_index', 0)
@@ -179,6 +181,7 @@ class ChaidoApp:
         data['todo_items'] = self.todoItems
         data['visible_todo_items'] = self.visibleTodoItems
         data['next_todo_index'] = self.nextTodoIndex
+        data['__format_version__'] = version.__format_version__
         with open(filename, "w") as f:
             f.write(json.dumps(data))
 

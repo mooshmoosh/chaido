@@ -146,6 +146,5 @@ class ChaidoSetExistingTaskAsDependant(unittest.TestCase):
         self.assertEqual(self.app.getTodo(0), "write a book")
         self.assertEqual(self.app.getTodo(1), "go to the shops")
 
-
 if __name__ == "__main__":
     unittest.main()
