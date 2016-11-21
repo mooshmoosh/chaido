@@ -1,1 +1,1 @@
-__format_version__ = 1
+__format_version__ = 2

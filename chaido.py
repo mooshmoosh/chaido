@@ -87,6 +87,7 @@ class ChaidoApp:
         self.visibleTodoItems = []
         self.visibleDirty = False
         self.nextTodoIndex = 0
+        self.next_max_priority = -1
 
     @property
     def totalTodoCount(self):
@@ -106,7 +107,7 @@ class ChaidoApp:
         return self.visibleTodoItems
 
     def addTodo(self, todoName):
-        self.todoItems[str(self.nextTodoIndex)] = {"name" : todoName, "children" : []}
+        self.todoItems[str(self.nextTodoIndex)] = {"name" : todoName, "children" : [], "priority" : self.nextTodoIndex}
         self.visibleTodoItems.append(str(self.nextTodoIndex))
         self.nextTodoIndex += 1
         return len(self.visibleTodoItems)
@@ -138,7 +139,7 @@ class ChaidoApp:
         raise ChaidoError("No visible task named " + task)
 
     def recalculateVisible(self):
-        self.visibleTodoItems = sorted(self.todoItems.keys(), key=(lambda x : int(x)))
+        self.visibleTodoItems = sorted(self.todoItems.keys(), key=(lambda x : int(self.todoItems[x]['priority'])))
         for index, todoItem in self.todoItems.items():
             newChildrenList = []
             for child in todoItem['children']:
@@ -174,6 +175,7 @@ class ChaidoApp:
             self.visibleTodoItems = data.get('visible_todo_items', [])
             self.nextTodoIndex = data.get('next_todo_index', 0)
             self.visibleDirty = data['visible_dirty']
+            self.next_max_priority = data['next_max_priority']
 
     def save(self, filename):
         data = {}
@@ -181,6 +183,7 @@ class ChaidoApp:
         data['todo_items'] = self.todoItems
         data['visible_todo_items'] = self.visibleTodoItems
         data['next_todo_index'] = self.nextTodoIndex
+        data['next_max_priority'] = self.next_max_priority
         data['__format_version__'] = version.__format_version__
         with open(filename, "w") as f:
             f.write(json.dumps(data))

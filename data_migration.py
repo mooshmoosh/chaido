@@ -6,11 +6,20 @@ def initial_migration(data):
     result["__format_version__"] = 1
     return result
 
+def add_priority_field(data):
+    result = data.copy()
+    for index, todoItem in data['todo_items'].items():
+        todoItem['priority'] = int(index)
+    result['next_max_priority'] = -1
+    result["__format_version__"] = 2
+    return result
+
 # These functions just have to migrate any format to any newer format.
 # Then there will always be a path to the newest format, from any old
 # format version.
 migration_functions = {
-    0 : initial_migration,
+    0: initial_migration,
+    1: add_priority_field,
 }
 
 def migrate_old_data(data):

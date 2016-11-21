@@ -1,7 +1,11 @@
 #!/usr/bin/python3
 
+import data_migration
+import json
+import os
 import unittest
 import chaido
+import version
 
 class MockChaiDoApp(chaido.ChaidoApp):
     def load(self, filename):
@@ -145,6 +149,44 @@ class ChaidoSetExistingTaskAsDependant(unittest.TestCase):
         self.assertEqual(self.app.totalTodoCount, 4)
         self.assertEqual(self.app.getTodo(0), "write a book")
         self.assertEqual(self.app.getTodo(1), "go to the shops")
+
+class ChaidoTestMigrations(unittest.TestCase):
+    def testMigrationFrom1To2(self):
+        old_format = {
+          "__format_version__": 1,
+          "visible_todo_items": [
+            "0",
+            "1",
+            "2",
+            "3"
+          ],
+          "next_todo_index": 4,
+          "visible_dirty": False,
+          "todo_items": {
+            "0": {
+              "children": [],
+              "name": "buy pens"
+            },
+            "3": {
+              "children": [],
+              "name": "go to the shops"
+            },
+            "2": {
+              "children": [],
+              "name": "write a book"
+            },
+            "1": {
+              "children": [],
+              "name": "buy more milk"
+            }
+          }
+        }
+        version.__format_version__ = 2
+        new_format = data_migration.migrate_old_data(old_format)
+        self.assertEqual(new_format['__format_version__'], 2)
+        for index, todo in new_format['todo_items'].items():
+            self.assertEqual(todo['priority'], int(index))
+        self.assertEqual(new_format['next_max_priority'], -1)
 
 if __name__ == "__main__":
     unittest.main()
