@@ -13,6 +13,11 @@ def addNewTodo(app, arguments):
         app.setTaskAsDependant(newTodoIndex, arguments[2:])
     return "OK"
 
+def removeTodoWithoutLogging(app, arguments):
+    while len(arguments) > 0:
+        app.removeTodo(arguments.pop(0), log=False)
+    return "OK"
+
 def removeTodo(app, arguments):
     while len(arguments) > 0:
         app.removeTodo(arguments.pop(0))
@@ -97,6 +102,7 @@ commands = {
     "bump" : bumpTodo,
     "must" : setTaskAsDependant,
     "rename" : renameTodo,
+    "remove" : removeTodoWithoutLogging,
 }
 
 def cleanUpArguments(argumentList):
@@ -181,12 +187,13 @@ class ChaidoApp:
         taskIndex = self.getTaskIndexByIdentifier(todoName)
         self.todoItems[taskIndex]['priority'] = newPriority
 
-    def removeTodo(self, todoName):
+    def removeTodo(self, todoName, log=True):
         self.visibleDirty = True
         taskIndex = self.getTaskIndexByIdentifier(todoName)
         if taskIndex not in self.todoItems:
             raise ChaidoError("No such task: " + todoName)
-        self.log("done", self.todoItems[taskIndex]['name'])
+        if log:
+            self.log("done", self.todoItems[taskIndex]['name'])
         del self.todoItems[taskIndex]
 
     def setTaskAsDependant(self, beforeTask, afterTasks):
