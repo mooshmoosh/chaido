@@ -159,7 +159,9 @@ class ChaidoApp:
         return len(self.visibleTodoItems)
 
     def setTaskName(self, taskIndex, newName):
+        oldName = self.todoItems[taskIndex]['name']
         self.todoItems[taskIndex]['name'] = newName
+        self.log("rename", "\t".join([oldName, newName]))
 
     def getVisibleTodos(self):
         if self.visibleDirty:
