@@ -5,20 +5,20 @@
 Add new tasks to your todo list with `chaido new`
 
 ```
-$ chaido new make a cake
+[user@machine ~]$ chaido new "make a cake"
 OK
-$ chaido new buy flour
+[user@machine ~]$ chaido new "buy flour"
 OK
-$ chaido new go to the shops
+[user@machine ~]$ chaido new "go to the shops"
 OK
-$ chaido new buy mixing bowl
+[user@machine ~]$ chaido new "buy mixing bowl"
 OK
 ```
 
 Look at the current list of tasks with `chaido`
 
 ```
-$ chaido
+[user@machine ~]$ chaido
 1: make a cake
 2: buy flour
 3: go to the shops
@@ -28,38 +28,74 @@ $ chaido
 Cross tasks off with `chaido done`
 
 ```
-$ chaido done 4
+[user@machine ~]$ chaido done 4
 OK
-$ chaido
+[user@machine ~]$ chaido
 1: make a cake
 2: buy flour
 3: go to the shops
 ```
 
-Hide tasks until another is completed with `chaido must {later task} before {task to do before}`
+When you mark off a task as done it will be logged in `.chaido.log`. If you want to delete a task without marking it as done use `chaido remove {task}`.
+
+Hide tasks until another is completed with `chaido must {first task}
+before {task to do once the first is done}`
 
 ```
-$ chaido must 3 before 2
+[user@machine ~]$ chaido must 2 before 1
 OK
-$ chaido
-1: make a cake
+[user@machine ~]$ chaido
+1: buy flour
 2: go to the shops
-$ chaido must 2 before 1
+[user@machine ~]$ chaido must 2 before 1
 OK
-$ chaido
+[user@machine ~]$ chaido
 1: go to the shops
 ```
 
 These hidden tasks will reappear when the tasks they depend on are done
 
 ```
-$ chaido don 1
+[user@machine ~]$ chaido done 1
 OK
-$ chaido
+[user@machine ~]$ chaido
 1: buy flour
-$ chaido done 1
+[user@machine ~]$ chaido done 1
 OK
-$ chaido
+[user@machine ~]$ chaido
 1: make a cake
 ```
 
+Tasks can be bumped up the list to make them more obvious, or to re prioritise.
+
+```
+[user@machine ~]$ chaido
+1: make a cake
+2: buy flour
+3: go to the shops
+4: buy mixing bowl
+[user@machine ~]$ chaido bump 4 before 1
+OK
+[user@machine ~]$ chaido
+1: buy mixing bowl
+2: make a cake
+3: buy flour
+4: go to the shops
+```
+
+Tasks can be renamed
+
+```
+[user@machine ~]$ chaido
+1: make a cake
+2: buy flour
+3: go to the shops
+4: buy mixing bowl
+[user@machine ~]$ chaido rename 1 "Bake some cookies"
+OK
+[user@machine ~]$ chaido
+1: Bake some cookies
+2: buy flour
+3: go to the shops
+4: buy mixing bowl
+```
