@@ -84,13 +84,19 @@ def bumpTodo(app, arguments):
             app.bumpTodo(argument)
     return "OK"
 
+def renameTodo(app, arguments):
+    taskIndex = app.getTaskIndexByIdentifier(arguments[0])
+    app.setTaskName(taskIndex, arguments[1])
+    return "OK"
+
 commands = {
     "new" : addNewTodo,
     "done" : removeTodo,
     "help" : displayHelp,
     "list" : listToDos,
     "bump" : bumpTodo,
-    "must" : setTaskAsDependant
+    "must" : setTaskAsDependant,
+    "rename" : renameTodo,
 }
 
 def cleanUpArguments(argumentList):
@@ -145,6 +151,9 @@ class ChaidoApp:
         if self.visibleDirty:
             self.recalculateVisible()
         return len(self.visibleTodoItems)
+
+    def setTaskName(self, taskIndex, newName):
+        self.todoItems[taskIndex]['name'] = newName
 
     def getVisibleTodos(self):
         if self.visibleDirty:
