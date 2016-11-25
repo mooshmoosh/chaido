@@ -11,6 +11,12 @@ def addNewTodo(app, arguments):
     newTodoIndex = app.addTodo(arguments[0])
     if len(arguments) >= 3 and arguments[1] == 'before':
         app.setTaskAsDependant(newTodoIndex, arguments[2:])
+        highest_priority = app.getPriorityForTask(arguments[2])
+        for task in arguments[2:]:
+            task_priority = app.getPriorityForTask(task)
+            if task_priority < highest_priority:
+                highest_priority = task_priority
+        app.setPriorityForTask(newTodoIndex, highest_priority)
     return "OK"
 
 def removeTodoWithoutLogging(app, arguments):
@@ -157,6 +163,14 @@ class ChaidoApp:
         if self.visibleDirty:
             self.recalculateVisible()
         return len(self.visibleTodoItems)
+
+    def setPriorityForTask(self, taskName, priority):
+        taskIndex = self.getTaskIndexByIdentifier(taskName)
+        self.todoItems[taskIndex]['priority'] = priority
+
+    def getPriorityForTask(self, taskName):
+        taskIndex = self.getTaskIndexByIdentifier(taskName)
+        return self.todoItems[taskIndex]['priority']
 
     def setTaskName(self, taskIndex, newName):
         oldName = self.todoItems[taskIndex]['name']
