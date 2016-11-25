@@ -203,6 +203,8 @@ class ChaidoApp:
         beforeTaskIndex = self.getTaskIndexByIdentifier(beforeTask)
         for afterTask in afterTasks:
             afterTaskIndex = self.getTaskIndexByIdentifier(afterTask)
+            if afterTaskIndex == beforeTaskIndex:
+                continue
             self.log('set_dependant', self.todoItems[afterTaskIndex]['name'] + "\t" + self.todoItems[beforeTaskIndex]['name'])
             self.todoItems[afterTaskIndex]['children'].append(beforeTaskIndex)
 
