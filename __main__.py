@@ -17,7 +17,7 @@ else:
         print(commands[sys.argv[1]](app, cleanedArguments))
         with open(".chaido.log", 'a') as f:
             for logMessage in app.getLogMessages():
-                f.write("|".join([datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"), logMessage['command'], logMessage['message']]) + "\n")
+                f.write("|".join([datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"), str(logMessage['command']), str(logMessage['message'])]) + "\n")
         app.save(".chaido")
     except ChaidoError as error:
         print("Error: " + error.message)

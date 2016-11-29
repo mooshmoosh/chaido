@@ -38,7 +38,7 @@ def listToDos(app, arguments):
         app.recalculateVisible()
     result = []
     for counter, todo in enumerate(app.getVisibleTodos()):
-        result.append(str(counter + 1) + ": " + app.todoItems[todo]['name'])
+        result.append(str(counter + 1) + ": " + str(app.todoItems[todo]['name']))
     return "\n".join(result)
 
 def setTaskAsDependant(app, arguments):
