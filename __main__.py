@@ -5,7 +5,7 @@ from chaido import *
 
 app = ChaidoApp()
 app.load(".chaido")
-if len(sys.argv) <= 2:
+if len(sys.argv) < 2:
     print(listToDos(app, []))
     app.save(".chaido")
 else:

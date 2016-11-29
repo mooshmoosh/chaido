@@ -41,6 +41,12 @@ def listToDos(app, arguments):
         result.append(str(counter + 1) + ": " + str(app.todoItems[todo]['name']))
     return "\n".join(result)
 
+def listAllToDos(app, arguments):
+    result = []
+    for task_index in sorted(list(app.todoItems.keys())):
+        result.append(str(app.todoItems[task_index]['name']))
+    return "\n".join(result)
+
 def setTaskAsDependant(app, arguments):
     if "then" in arguments:
         taskLists = [[]]
@@ -97,6 +103,8 @@ def bumpTodo(app, arguments):
     return "OK"
 
 def renameTodo(app, arguments):
+    if len(arguments) < 2:
+        raise ChaidoError("You must specify a task, and the new name for the task")
     taskIndex = app.getTaskIndexByIdentifier(arguments[0])
     app.setTaskName(taskIndex, arguments[1])
     return "OK"
@@ -106,6 +114,7 @@ commands = {
     "done" : removeTodo,
     "help" : displayHelp,
     "list" : listToDos,
+    "all" : listAllToDos,
     "bump" : bumpTodo,
     "must" : setTaskAsDependant,
     "rename" : renameTodo,

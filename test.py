@@ -200,5 +200,22 @@ class ChaidoTestMigrations(unittest.TestCase):
             self.assertEqual(todo['priority'], int(index))
         self.assertEqual(new_format['next_max_priority'], -1)
 
+class ChaidoListingAllTaskTests(unittest.TestCase):
+    def testListingAllTasks(self):
+        self.app = MockChaiDoApp()
+        chaido.addNewTodo(self.app, ["buy pens"])
+        chaido.addNewTodo(self.app, ["buy more milk"])
+        chaido.addNewTodo(self.app, ["write a book"])
+        chaido.addNewTodo(self.app, ["go to the shops"])
+        chaido.setTaskAsDependant(self.app, ["4", "before", "1"])
+        self.assertEqual(chaido.listToDos(self.app, []), """1: buy more milk
+2: write a book
+3: go to the shops""")
+        self.assertEqual(chaido.listAllToDos(self.app, []), """buy pens
+buy more milk
+write a book
+go to the shops""")
+
+
 if __name__ == "__main__":
     unittest.main()
