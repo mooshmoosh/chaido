@@ -1,3 +1,4 @@
+import re
 import sys
 import os
 import json
@@ -115,12 +116,18 @@ def cleanUpArguments(argumentList):
     argumentsToJoin = []
     result = []
     for (index, arg) in enumerate(argumentList):
-        if arg == 'before':
+        if arg in ['before', 'then'] or isInt(arg):
             if len(argumentsToJoin) > 0:
                 result.append(" ".join(argumentsToJoin))
                 argumentsToJoin = []
-            result += argumentList[index:]
-            break
+            if isInt(arg):
+                result.append(int(arg))
+            else:
+                result.append(arg)
+        elif re.match(r'^\d+-\d+$', arg):
+            start_range = int(arg.split('-')[0])
+            end_range = int(arg.split('-')[1]) + 1
+            result += list(range(start_range, end_range))
         else:
             argumentsToJoin.append(arg)
     if len(argumentsToJoin) > 0:

@@ -18,12 +18,12 @@ class CleanArgumentsTest(unittest.TestCase):
     def testCleanArgumentsToAddTodo(self):
         arguments = ["buy", "more", "milk", "before", "5"]
         cleanedArguments = chaido.cleanUpArguments(arguments)
-        self.assertEqual(cleanedArguments, ["buy more milk", "before", "5"])
+        self.assertEqual(cleanedArguments, ["buy more milk", "before", 5])
 
     def testCleanArgumentsWithATodoAndMultipleOptions(self):
         arguments = ["buy", "more", "milk", "before", "5", "3", "9"]
         cleanedArguments = chaido.cleanUpArguments(arguments)
-        self.assertEqual(cleanedArguments, ["buy more milk", "before", "5", "3", "9"])
+        self.assertEqual(cleanedArguments, ["buy more milk", "before", 5, 3, 9])
 
     def testCleanArgumentsNoOptions(self):
         arguments = ["buy", "more", "milk", "ok?"]
@@ -34,6 +34,18 @@ class CleanArgumentsTest(unittest.TestCase):
         arguments = []
         cleanedArguments = chaido.cleanUpArguments(arguments)
         self.assertEqual(cleanedArguments, [])
+
+    def testMultiWordTodo(self):
+        args = ["Go", "to", "the", "shops", "before", "buy", "some", "milk"]
+        self.assertEqual(chaido.cleanUpArguments(args), ["Go to the shops", "before", "buy some milk"])
+
+    def testNumberedTodos(self):
+        args = ["1", "2", "3", "4", "5", "Go", "to", "the", "shops", "6", "before", "7", "8", "9"]
+        self.assertEqual(chaido.cleanUpArguments(args), [1, 2, 3, 4, 5, "Go to the shops", 6, "before", 7, 8, 9])
+
+    def testNumberedRangeTodos(self):
+        args = ["1", "2-4", "9", "before", "hello"]
+        self.assertEqual(chaido.cleanUpArguments(args), [1, 2, 3, 4, 9, "before", "hello"])
 
 class ChaidoAdding(unittest.TestCase):
     def setUp(self):

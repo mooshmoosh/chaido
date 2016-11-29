@@ -9,7 +9,7 @@ if len(sys.argv) <= 2:
     print(listToDos(app, []))
     app.save(".chaido")
 else:
-    cleanedArguments = sys.argv[2:]
+    cleanedArguments = cleanUpArguments(sys.argv[2:])
     if sys.argv[1] not in commands:
         print("Unknown command " + sys.argv[1])
         exit()
