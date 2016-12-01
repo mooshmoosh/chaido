@@ -12,12 +12,21 @@ def addNewTodo(app, arguments):
     newTodoIndex = app.addTodo(arguments[0])
     if len(arguments) >= 3 and arguments[1] == 'before':
         app.setTaskAsDependant(newTodoIndex, arguments[2:])
-        highest_priority = app.getPriorityForTask(arguments[2])
+        highest_priority = app.getTaskPriority(arguments[2])
         for task in arguments[2:]:
-            task_priority = app.getPriorityForTask(task)
+            task_priority = app.getTaskPriority(task)
             if task_priority < highest_priority:
                 highest_priority = task_priority
-        app.setPriorityForTask(newTodoIndex, highest_priority)
+        app.setTaskPriority(newTodoIndex, highest_priority)
+    return "OK"
+
+def addNewTodoToTop(app, arguments):
+    if len(arguments) < 1:
+        raise ChaidoError("No todo item was provided")
+    newTodoIndex = app.addTodo(arguments[0])
+    if len(arguments) >= 3 and arguments[1] == 'before':
+        app.setTaskAsDependant(newTodoIndex, arguments[2:])
+    app.setTaskPriority(newTodoIndex, app.getTaskPriority("1") - 1)
     return "OK"
 
 def removeTodoWithoutLogging(app, arguments):
@@ -110,7 +119,8 @@ def renameTodo(app, arguments):
     return "OK"
 
 commands = {
-    "new" : addNewTodo,
+    "new" : addNewTodoToTop,
+    "later" : addNewTodo,
     "done" : removeTodo,
     "help" : displayHelp,
     "list" : listToDos,
@@ -179,14 +189,6 @@ class ChaidoApp:
         if self.visibleDirty:
             self.recalculateVisible()
         return len(self.visibleTodoItems)
-
-    def setPriorityForTask(self, taskName, priority):
-        taskIndex = self.getTaskIndexByIdentifier(taskName)
-        self.todoItems[taskIndex]['priority'] = priority
-
-    def getPriorityForTask(self, taskName):
-        taskIndex = self.getTaskIndexByIdentifier(taskName)
-        return self.todoItems[taskIndex]['priority']
 
     def setTaskName(self, taskIndex, newName):
         oldName = self.todoItems[taskIndex]['name']
