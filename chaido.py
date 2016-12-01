@@ -123,6 +123,13 @@ def renameTodo(app, arguments):
     app.setTaskName(taskIndex, arguments[1])
     return "OK"
 
+def pushTodoDown(app, arguments):
+    if len(arguments) == 0:
+        raise ChaidoError("You must specify a task to push down the list")
+    app.pushTaskToBottom(arguments[0])
+    return "OK"
+
+
 commands = {
     "new" : addNewTodoToTop,
     "later" : addNewTodo,
@@ -134,6 +141,7 @@ commands = {
     "must" : setTaskAsDependant,
     "rename" : renameTodo,
     "remove" : removeTodoWithoutLogging,
+    "push" : pushTodoDown,
 }
 
 def cleanUpArguments(argumentList):
@@ -256,6 +264,11 @@ class ChaidoApp:
             if todo.get("name") == task:
                 return index
         raise ChaidoError("No visible task named " + task)
+
+    def pushTaskToBottom(self, taskName):
+        self.visibleDirty = True
+        taskIndex = self.getTaskIndexByIdentifier(taskName)
+        self.setTaskPriority(taskName, self.todoItems[self.visibleTodoItems[-1]]['priority'] + 1)
 
     def recalculateVisible(self):
         self.visibleTodoItems = sorted(self.todoItems.keys(), key=(lambda x : int(self.todoItems[x]['priority'])))
