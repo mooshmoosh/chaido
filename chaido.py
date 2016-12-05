@@ -47,12 +47,15 @@ def listToDos(app, arguments):
         app.recalculateVisible()
     result = []
     for counter, todo in enumerate(app.getVisibleTodos()):
-        todo_name = str(app.todoItems[todo]['name'])
-        todo_words = todo_name.split(' ')
-        todo_number = str(counter + 1)
-        result.append(todo_number + ": " + ' '.join(todo_words[0:7]))
-        for word_bunch in range(7,len(todo_words), 7):
-            result.append(' ' * (len(todo_number) + 2) + ' '.join(todo_words[word_bunch:word_bunch + 7]))
+        if len(arguments) > 0 and arguments[0] == 'short':
+            todo_name = str(app.todoItems[todo]['name'])
+            todo_words = todo_name.split(' ')
+            todo_number = str(counter + 1)
+            result.append(todo_number + ": " + ' '.join(todo_words[0:7]))
+            for word_bunch in range(7,len(todo_words), 7):
+                result.append(' ' * (len(todo_number) + 2) + ' '.join(todo_words[word_bunch:word_bunch + 7]))
+        else:
+            result.append(str(counter + 1) + ': ' + str(app.todoItems[todo]['name']))
     return "\n".join(result)
 
 def listAllToDos(app, arguments):
