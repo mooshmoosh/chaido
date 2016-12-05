@@ -129,7 +129,8 @@ def renameTodo(app, arguments):
 def pushTodoDown(app, arguments):
     if len(arguments) == 0:
         raise ChaidoError("You must specify a task to push down the list")
-    app.pushTaskToBottom(arguments[0])
+    for argument in arguments:
+        app.pushTaskToBottom(argument)
     return "OK"
 
 
