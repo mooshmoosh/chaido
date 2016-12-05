@@ -2,3 +2,4 @@
 __pycache__
 vimproject.sh
 *.swp
+.chaido.log
