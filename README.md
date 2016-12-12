@@ -1,4 +1,4 @@
-#Chaido - A todo list manager for hackers
+#Chaido - A command line todo list
 
 *Usage*
 
