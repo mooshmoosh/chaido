@@ -129,10 +129,24 @@ def renameTodo(app, arguments):
 def pushTodoDown(app, arguments):
     if len(arguments) == 0:
         raise ChaidoError("You must specify a task to push down the list")
-    for argument in arguments:
-        app.pushTaskToBottom(argument)
+    if 'after' in arguments:
+        beforeTasks = []
+        afterTasks = []
+        for argument in arguments:
+            if argument == 'after':
+                listingBeforeTasks = False
+            elif listingBeforeTasks:
+                beforeTasks.append(argument)
+            else:
+                afterTasks.append(argument)
+        if len(afterTasks) == 0:
+            raise ChaidoError("You must specify task(s) that you want to push these after")
+        for beforeTask in beforeTasks:
+            app.pushTaskAfter(beforeTask, afterTasks)
+    else:
+        for argument in arguments:
+            app.pushTaskToBottom(argument)
     return "OK"
-
 
 commands = {
     "new" : addNewTodoToTop,
@@ -237,6 +251,16 @@ class ChaidoApp:
         self.visibleDirty = True
         taskIndex = self.getTaskIndexByIdentifier(todoName)
         self.todoItems[taskIndex]['priority'] = newPriority
+
+    def pushTaskAfter(self, beforeTask, afterTasks):
+        lowest_priority = None
+        for task in afterTasks:
+            task_priority = self.getTaskPriority(task)
+            if lowest_priority is None:
+                lowest_priority = task_priority
+            elif lowest_priority < task_priority
+                lowest_priority = task_priority
+        self.setTaskPriority(beforeTask, lowest_priority)
 
     def removeTodo(self, todoName, log=True):
         self.visibleDirty = True
