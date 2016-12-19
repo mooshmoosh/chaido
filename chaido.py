@@ -132,6 +132,7 @@ def pushTodoDown(app, arguments):
     if 'after' in arguments:
         beforeTasks = []
         afterTasks = []
+        listingBeforeTasks = True
         for argument in arguments:
             if argument == 'after':
                 listingBeforeTasks = False
@@ -258,9 +259,9 @@ class ChaidoApp:
             task_priority = self.getTaskPriority(task)
             if lowest_priority is None:
                 lowest_priority = task_priority
-            elif lowest_priority < task_priority
+            elif lowest_priority < task_priority:
                 lowest_priority = task_priority
-        self.setTaskPriority(beforeTask, lowest_priority)
+        self.setTaskPriority(beforeTask, lowest_priority + 1)
 
     def removeTodo(self, todoName, log=True):
         self.visibleDirty = True
